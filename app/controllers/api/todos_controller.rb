@@ -4,7 +4,9 @@ class Api::TodosController < ApplicationController
   end
 
   def create
+
     @todo = Todo.new(todo_params)
+    # debugger
     if @todo.save
       render json: @todo
     else

@@ -1,12 +1,21 @@
-const DOMNodeCollection = require('./dom_node_collection.js')
+const DOMNodeCollection = require('./dom_node_collection.js');
 
 const functionQueue = [];
 const _docReady = false;
 
   let tester = document.querySelectorAll("li");
 
+  // document.addEventListener("DOMContentLoaded", () => {
+  //   _docReady = true;
+  //   functionQueue.forEach(event => {
+  //     event();
+  //   });
+  //   functionQueue = [];
+  // });
 
-  window.$l = (arg) => {
+  window.$l = $l;
+
+  export const $l = (arg) => {
       if (arg instanceof HTMLElement) {
       return new DOMNodeCollection([arg]);
     } else if (arg instanceof Function) {
@@ -25,21 +34,21 @@ const _docReady = false;
   $l.extend = (base, ...otherObjs) => {
     otherObjs.forEach((obj) => {
       for (const key in obj) {
-        base[key] = obj[key]
+        base[key] = obj[key];
       }
-    })
+    });
     return base;
-  }
+  };
 
-  toQueryString = (obj) => {
-    let string = ""
+  export const toQueryString = (obj) => {
+    let string = "";
     for (const key in obj) {
       if (Object.prototype.hasOwnProperty.call(obj, prop)) {
-        string += `${key}=${obj[key]}&`
+        string += `${key}=${obj[key]}&`;
       }
     }
     return string.substring(0, string.length - 1);
-  }
+  };
 
    $l.ajax = (options) => {
      return new Promise((resolve, reject) => {
@@ -47,13 +56,15 @@ const _docReady = false;
        const method = options.method ? `${options.method}`.toUpperCase() : "GET";
        const data = options.data ? options.data : {};
        const url = options.url;
-       const success = options.() => {};
-
-       request.open(method, url)
+       const success = options.success ? options.success : {};
+       debugger
+       request.open(method, url);
        request.onload = () => {
          if (request.status >= 200 && request.status < 300) {
-           // resolve(JSON.parse(request.response));
-           success(request.response)
+           resolve(JSON.parse(request.response));
+           // options.success(request.response)
+           return request.response;
+           // return options.data
          } else {
            reject({
              status: request.status,
@@ -66,34 +77,12 @@ const _docReady = false;
              status: request.status,
              statusText: request.statusText
            });
-         }
+         };
 
-         request.send(data)
-     })
+         request.send(data);
+     });
   };
 
-    $l.executeFunctions = () => {
+    function executeFunctions () {
       functionQueue.forEach(el => el());
-    };
-
-
-  //
-  // getNodesFromDom = (selector) => {
-  //   const nodes = document.querySelectorAll(selector);
-  //   const nodesArray = Array.from(nodes);
-  //   return new DomNodeCollection(nodesArray);
-  // };
-
-
-  // registerDocReadyCallback = (func) => {
-  // if (!_docReady) {
-  //   functionQueue.push(func);
-  // } else {
-  //   func();
-  //   }
-  // };
-
-  // document.addEventListener('DOMContentLoaded', () => {
-  //   _docReady = true;
-  //   functionQueue.forEach(func => func());
-  // });
+    }

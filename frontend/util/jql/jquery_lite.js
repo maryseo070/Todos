@@ -74,6 +74,13 @@ const _docReady = false;
 
   let tester = document.querySelectorAll("li");
 
+  // document.addEventListener("DOMContentLoaded", () => {
+  //   _docReady = true;
+  //   functionQueue.forEach(event => {
+  //     event();
+  //   });
+  //   functionQueue = [];
+  // });
 
   window.$l = (arg) => {
       if (arg instanceof HTMLElement) {
@@ -94,14 +101,14 @@ const _docReady = false;
   $l.extend = (base, ...otherObjs) => {
     otherObjs.forEach((obj) => {
       for (const key in obj) {
-        base[key] = obj[key]
+        base[key] = obj[key];
       }
-    })
+    });
     return base;
-  }
+  };
 
   toQueryString = (obj) => {
-    let string = ""
+    let string = "";
     for (const key in obj) {
       if (Object.prototype.hasOwnProperty.call(obj, prop)) {
         string += `${key}=${obj[key]}&`
@@ -116,12 +123,12 @@ const _docReady = false;
        const method = options.method ? `${options.method}`.toUpperCase() : "GET";
        const data = options.data ? options.data : {};
        const url = options.url;
-       const success = () => {};
+       const success = options.success ? options.success : {};
 
        request.open(method, url)
        request.onload = () => {
          if (request.status >= 200 && request.status < 300) {
-           // resolve(JSON.parse(request.response));
+           resolve(JSON.parse(request.response));
            options.success(request.response)
          } else {
            reject({
@@ -146,75 +153,53 @@ const _docReady = false;
     };
 
 
-  //
-  // getNodesFromDom = (selector) => {
-  //   const nodes = document.querySelectorAll(selector);
-  //   const nodesArray = Array.from(nodes);
-  //   return new DomNodeCollection(nodesArray);
-  // };
-
-
-  // registerDocReadyCallback = (func) => {
-  // if (!_docReady) {
-  //   functionQueue.push(func);
-  // } else {
-  //   func();
-  //   }
-  // };
-
-  // document.addEventListener('DOMContentLoaded', () => {
-  //   _docReady = true;
-  //   functionQueue.forEach(func => func());
-  // });
-
-
 /***/ }),
 /* 1 */
 /***/ (function(module, exports) {
 
 class DOMNodeCollection {
-  
+
   constructor (htmlelements) {
     this.els = htmlelements;
   }
-  
+
   html(str) {
     if (str) {
-      this.els.forEach(el => el.innerHTML = str)
+      this.els.forEach(el => el.innerHTML = str);
     }
     else {
-      return this.els[0].innerHTML; 
+      return this.els[0].innerHTML;
     }
   }
-  
+
   empty() {
-    this.els.forEach(el => el.innerHTML = ""); 
+    this.els.forEach(el => el.innerHTML = "");
   }
-  
+
   append(argument) {
     if (this.els.length === 0) return ;
-    if (typeof argument === 'object' && 
+    if (typeof argument === 'object' &&
       !(argument instanceof DOMNodeCollection)) {
         argument = $l(argument)
       }
-    
+
     if (typeof argument === 'string') {
       this.els.forEach((el) => {
         el.innerHTML += argument;
-      })
-    }  
-    
+      });
+    }
+
     else if (argument instanceof DOMNodeCollection ) {
       this.els.forEach( (el) => {
         argument.els.forEach((child) => {
-          el.appendChild(child.cloneNode(true))
-        })
-        
-      })
+          el.appendChild(child.cloneNode(true));
+        });
+
+      });
     }
-      
+
   }
-  
+
   attr(key, val) {
    if (typeof val === "string") {
      this.els.forEach(node => node.setAttribute(key, val));
@@ -225,50 +210,50 @@ class DOMNodeCollection {
 
   addClass(name) {
     this.els.forEach( (el) => el.classList.add(name));
-  } 
-  
-  removeClass(name) {
-    this.els.forEach( (el) => el.classList.remove(name));  
-  } 
-  
-  toggleClass(toggleClass) {
-    this.els.forEach( (el) => el.classList.toggle(toggleClass))
   }
-  
+
+  removeClass(name) {
+    this.els.forEach( (el) => el.classList.remove(name));
+  }
+
+  toggleClass(toggleClass) {
+    this.els.forEach( (el) => el.classList.toggle(toggleClass));
+  }
+
   children() {
     let kiddos = [];
     this.els.forEach( (el) => {
       // console.log(node.children)
-      let childNodes = el.children 
-      kiddos = kiddos.concat(Array(childNodes))
-    })
-    return new DOMNodeCollection(kiddos)
+      let childNodes = el.children ;
+      kiddos = kiddos.concat(Array(childNodes));
+    });
+    return new DOMNodeCollection(kiddos);
   }
-  
+
   parent () {
     let parentNodes = [];
     this.els.forEach( (el) => {
-      if (!parentNodes.includes(el.parentNode)) 
+      if (!parentNodes.includes(el.parentNode))
       parentNodes.push(el.parentNode);
-    })
-    return new DOMNodeCollection(parentNodes)
-  
+    });
+    return new DOMNodeCollection(parentNodes);
+
   }
 
   find(selector) {
     let arr = [];
-    this.els.forEach( el => { 
-      let nodeList = el.querySelectorAll(selector)
-      arr = arr.concat(Array(nodeList))
-    })
+    this.els.forEach( el => {
+      let nodeList = el.querySelectorAll(selector);
+      arr = arr.concat(Array(nodeList));
+    });
     return new DOMNodeCollection(arr);
   }
-  // 
+  //
   remove() {
-    this.els.forEach((el) => el.parentNode.removeChild(el))
+    this.els.forEach((el) => el.parentNode.removeChild(el));
 
   }
-  
+
   on(type, fnc) {
     this.els.forEach(el => {
       el.addEventListener(type, fnc);
@@ -279,7 +264,7 @@ class DOMNodeCollection {
       el[eventKey].push(fnc);
     });
   }
-  
+
   off(type) {
     this.els.forEach( (el) => {
       const eventKey = `jqe-${type}`;
@@ -289,13 +274,14 @@ class DOMNodeCollection {
         });
       }
       el[eventKey] = [];
-    })
+    });
   }
-  
+
 }
 
 
 module.exports = DOMNodeCollection;
+
 
 /***/ })
 /******/ ]);
